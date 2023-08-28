@@ -39,5 +39,5 @@ public class StringCase1 {
         return false;
     }
 
-     
+
 }
