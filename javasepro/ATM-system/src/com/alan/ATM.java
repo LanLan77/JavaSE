@@ -1,8 +1,10 @@
 package com.alan;
 
 import java.util.ArrayList;
+import java.util.Random;
 import java.util.Scanner;
 
+// https://www.bilibili.com/video/BV1Cv411372m?p=86&vd_source=be66e2e596d7cad20f6838213c9a00d2
 public class ATM {
     private Scanner scanner = new Scanner(System.in);
     private ArrayList<Account> accounts = new ArrayList<>();
@@ -65,10 +67,51 @@ public class ATM {
             }
         }
 
+        System.out.println("请输入您的取现额度： ");
+        double limit = scanner.nextDouble();
+        account.setLimit(limit );
+
+        String newCardId = createCardId();
+        account.setCardId(newCardId);
 
         // 3. 把账户存到账户集合
         accounts.add(account);
-        System.out.println("恭喜您"+ account.getUserName()+"开户成功,您的卡号是： ");
+        System.out.println("恭喜您"+ account.getUserName()+"开户成功,您的卡号是： "+ account.getCardId() );
     }
+
+    // 4. 返回一个8位数的卡号返回
+    private String createCardId(){
+        while (true) {
+            Random random = new Random();
+            String cardId = "";
+            for (int i = 0; i < 8; i++) {
+                int data = random.nextInt(10);
+                cardId += data;
+            }
+
+            Account account = getAccountByCardId(cardId);
+            if (account==null){
+                return cardId;
+            }
+        }
+
+    }
+
+
+    // 根据卡号账户对象返回
+    private Account getAccountByCardId(String cardId){
+        // 遍历所有账户对象
+        for (int i = 0; i < accounts.size(); i++) {
+            Account account = new Account();
+            // 判断卡号是否相等
+            if(account.getCardId().equals(cardId)){
+                return account;
+            }
+        }
+
+        return null;//查无此账户
+        
+    }
+
     
  }
