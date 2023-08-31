@@ -8,6 +8,7 @@ import java.util.Scanner;
 public class ATM {
     private Scanner scanner = new Scanner(System.in);
     private ArrayList<Account> accounts = new ArrayList<>();
+    private Account loginAcc; // 记录登录后的账户
     
     public void start(){
         while(true){
@@ -19,7 +20,7 @@ public class ATM {
             int command = scanner.nextInt();
             switch (command){
                 case 1:
-                    System.out.println("进入用户登录功能");
+                    login();
                     break;
                 case 2:
                     createAccount();
@@ -97,14 +98,224 @@ public class ATM {
 
     }
 
+    private void login(){
+        while (true) {
+            System.out.println("=======系统登录======");
+            // 1. 判断系统中是否存在账户，不存在直接结束登录操作
+            if (accounts.size()==0){
+                System.out.println("当前系统中无任何账户，请先开户");
+                return; // 退出登录系统
+            }
 
+            // 2. 存在账户进行登录操作
+            System.out.println("输入您的账户号码：");
+            String cardId = scanner.next();
+            Account account = getAccountByCardId(cardId);
+            // 3. 判断卡号是否存在
+            if(account == null){
+                System.out.println("您输入的卡号不存在，请确认");
+            }else{
+                while (true) {
+                    // 4. 卡号存在让用户输入密码
+                    System.out.println("请您输入密码");
+                    String passWord = scanner.next();
+                    // 判断密码是否正确
+                    if(account.getPassWord().equals(passWord)){
+                        loginAcc = account;
+                        System.out.println("恭喜您"+account.getUserName()+"成功登录了系统，您的卡号是："+account.getCardId() );
+                        // 密码正确，登录成功
+                        showUserCommand();
+                        return;
+                    }else{
+                        System.out.println("密码不正确，请重新输入");
+                    }
+                }
+
+            }
+        }
+
+
+    }
+
+    // 账户和密码输入成功之后展示操作页面
+    private void showUserCommand(){
+        while (true) {
+            System.out.println(loginAcc.getUserName()+  "您可以选择如下功能进行账户处理===== ");
+            System.out.println("1. 查询");
+            System.out.println("2. 存款");
+            System.out.println("3. 取款");
+            System.out.println("4. 转账");
+            System.out.println("5. 修改密码");
+            System.out.println("6. 退出");
+            System.out.println("7. 注销当前账户");
+
+            int command = scanner.nextInt();
+
+            switch (command){
+                case 1:
+                    // 查询当前账户
+                    showLoginAccount();
+                    break;
+                case 2:
+                    depositMoney();
+                    break;
+                case 3:
+                    withdrawMoney();
+                    break;
+                case 4:
+                    transferMoney();
+                    break;
+                case 5:
+                    updatePassword();
+                    break;
+                case 6:
+                    // 退出
+                    System.out.println(loginAcc.getUserName()+"您退出系统成功 ");
+                    return; // 结束当前方法
+                case 7  :
+                    if(deleteAccount()){
+                        // 销户成功了
+                        return;
+                    }
+
+                    break;
+                default:
+                    System.out.println("输入的指令有误，请重试 ");
+            }
+        }
+    }
+
+    private void updatePassword() {
+        System.out.println("=====进行账户修改密码的操作=====");
+        System.out.println("请您输入当前账户的密码");
+        String password = scanner.next();
+        if(password.equals(loginAcc.getPassWord())){
+            System.out.println("请您输入修改的密码");
+            String newPassword = scanner.next();
+            loginAcc.setPassWord(newPassword);
+        }else {
+            System.out.println("对不起，您的原始密码不对，请重试");
+        }
+    }
+
+    private boolean  deleteAccount() {
+        System.out.println("====进行销户操作====");
+        System.out.println("请问您确定销户吗？ y/n");
+        String command = scanner.next();
+        switch (command){
+            case "y":
+                if(loginAcc.getMoney()==0){
+                    accounts.remove(loginAcc);
+                    System.out.println("您好，您已经成功销户");
+                    return true;
+                }else {
+                    System.out.println("对不起您的账户还有钱");
+                    return false;
+                }
+            default:
+                System.out.println("好的，您的账户保留");
+                return false;
+        }
+    }
+
+    private void transferMoney() {
+        System.out.println("===用户转账===");
+        // 1. 判断是否有其他账户
+        if(accounts.size()<2){
+            System.out.println("当前ATM只有一个账户，无法转账");
+            return;
+        }
+
+        // 2. 判断自己是否有钱
+        if(loginAcc.getMoney() == 0){
+            System.out.println("你自己都没钱了，别转了");
+            return;
+        }
+
+        // 3.  开始转账
+        while (true) {
+            System.out.println("请您输入对方的卡号: ");
+            String cardId = scanner.next();
+            Account acc = getAccountByCardId(cardId);
+            if(acc == null){
+                System.out.println("您输入的卡号不正确，请重试");
+            } else{
+                // 对方的账户存在，验证姓氏
+                String name =  "*"+  acc.getUserName().substring(1);
+                System.out.println("请您输入【" + name+"】的 姓氏");
+                String preName = scanner.next();
+                // 判断姓氏是否正确
+                if(acc.getUserName().startsWith(preName)){
+                    //认证通过，开始转账
+                    System.out.println("请您输入转账给对方的金额");
+                    double money = scanner.nextDouble();
+                    // 判断是否超过余额
+                    if(money>loginAcc.getMoney()){
+                        System.out.println("对不起您的余额不足，无法给对方转账，最多可转账"+loginAcc.getMoney());
+                    }else{
+                          loginAcc.setMoney(loginAcc.getMoney()-money);
+                          acc.setMoney(acc.getMoney()+money);
+                          return;
+                    }
+                }else{
+                    System.out.println("对不起，您认证的姓氏有问题 ");
+                }
+
+            }
+        }
+
+
+    }
+
+    private void withdrawMoney() {
+        System.out.println("======取钱操作======");
+        System.out.println("请输入您的取款金额");
+        double money = scanner.nextDouble();
+
+        // 更新账户余额
+        if(loginAcc.getMoney()>=money){
+            if (money > loginAcc.getLimit()){
+                System.out.println("超过取款上限，您的取款上限为"+loginAcc.getLimit());
+            }else{
+                loginAcc.setMoney(loginAcc.getMoney()-money);
+                System.out.println("恭喜，您取款"+money+"元，账户余额为"+loginAcc.getMoney());
+            }
+        }else{
+            System.out.println("您的余额不足，剩余余额为"+loginAcc.getMoney() );
+        }
+
+
+
+    }
+
+    // 存钱
+    private void depositMoney() {
+        System.out.println("======存钱操作======");
+        System.out.println("请输入您的存款金额");
+        double money = scanner.nextDouble();
+
+        // 更新账户余额
+        loginAcc.setMoney(loginAcc.getMoney()+money);
+        System.out.println("恭喜，您存款"+money+"元，账户余额为"+loginAcc.getMoney());
+    }
+
+
+    private void showLoginAccount(){
+        System.out.println("==========当前账户信息如下========");
+        System.out.println("卡号： "+ loginAcc.getCardId());
+        System.out.println("用户名： "+loginAcc.getUserName());
+        System.out.println("性别： "+loginAcc.getSex());
+        System.out.println("余额： "+loginAcc.getMoney());
+        System.out.println("每次取现额度： "+loginAcc.getLimit());
+
+    }
     // 根据卡号账户对象返回
     private Account getAccountByCardId(String cardId){
         // 遍历所有账户对象
         for (int i = 0; i < accounts.size(); i++) {
-            Account account = new Account();
+            Account account = accounts.get(i);
             // 判断卡号是否相等
-            if(account.getCardId().equals(cardId)){
+            if(cardId.equals(account.getCardId())){
                 return account;
             }
         }
