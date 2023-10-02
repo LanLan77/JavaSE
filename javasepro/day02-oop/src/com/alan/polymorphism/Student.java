@@ -1,5 +1,5 @@
 package com.alan.polymorphism;
-
+// 多态
 public class Student extends People{
     public String name = "子类Student的名称";
     @Override
