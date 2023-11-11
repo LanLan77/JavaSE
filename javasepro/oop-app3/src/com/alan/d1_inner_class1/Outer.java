@@ -5,7 +5,7 @@ public class Outer {
     public static String a;
 
     //成员 内部类
-    public class Inner{
+    public static class Inner{
         private String name;
         private int age = 88 ;
         public static String SCHOOL_NAME; // JDK16
@@ -22,7 +22,7 @@ public class Outer {
             this.name = name;
         }
 
-        void test(){
+        public void test(){
             System.out.println(age);
             System.out.println(a);
 
