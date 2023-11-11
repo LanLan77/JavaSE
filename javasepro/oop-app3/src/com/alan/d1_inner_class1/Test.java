@@ -17,7 +17,7 @@ package com.alan.d1_inner_class1;
 public class Test  {
     // 目的：了解内部类成员及特点
     public static void main(String[] args) {
-        Outer.Inner inner = new Outer().new Inner();
-         inner.test();
+       // Outer.Inner inner = new Outer().new Inner();
+        // inner.test();
     }
 }
