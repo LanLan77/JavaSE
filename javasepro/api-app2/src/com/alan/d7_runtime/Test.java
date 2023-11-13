@@ -13,7 +13,7 @@ public class Test {
         //5. public long freeMemory(） 返回Java虛拟机中的可用内存量
         System.out.println(r.freeMemory()/1024/1024+"MB ");
         // 6. public process exec (String command） 启动某个程序，并返回代表该程序的对象。
-        //r.exec("path = ") 
+        //r.exec("path = ")
 
     }
 }
