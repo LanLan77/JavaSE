@@ -1,4 +1,4 @@
-package com.alan.algorithm;
+package com.alan.d1_algorithm;
 // 目标: 掌握二分查找的算法
 public class Test3 {
     public static void main(String[] args) {

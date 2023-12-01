@@ -1,4 +1,4 @@
-package com.alan.algorithm;
+package com.alan.d1_algorithm;
 
 import java.util.Arrays;
 
